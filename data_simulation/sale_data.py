@@ -1,0 +1,61 @@
+import csv
+import time
+import uuid
+from faker import Faker
+
+fake = Faker()
+
+def generate_sales_data():
+    location = fake.local_latlng(country_code='US', coords_only=False)
+    order_date = fake.date_time_this_year()
+    unit_price = round(fake.random.uniform(10.0, 100.0), 2)
+    quantity = fake.random_int(min=1, max=10)
+    discount = round(fake.random.uniform(0.0, 10.0), 2)
+    total_price = round((unit_price * quantity) - discount, 2)
+    return {
+        'SaleID': str(uuid.uuid4()),  # Generate a unique SaleID using UUID
+        'OrderID': str(uuid.uuid4()),  # Generate a unique OrderID using UUID
+        'OrderDate': order_date.strftime('%Y-%m-%d %H:%M:%S'),
+        'CustomerName': fake.name(),
+        'CustomerEmail': fake.email(),
+        'ProductID': fake.random_int(min=1, max=100),
+        'ProductName': fake.word(),
+        'ProductCategory': fake.word(),
+        'UnitsSold': quantity,
+        'UnitPrice': unit_price,
+        'TotalPrice': total_price,
+        'Revenue': total_price,
+        'Region': fake.random_element(elements=('North', 'South', 'East', 'West')),
+        'Discount': discount,
+        'CustomerID': fake.random_int(min=1, max=500),
+        'PaymentMethod': fake.random_element(elements=('Credit Card', 'Debit Card', 'PayPal', 'Cash')),
+        'PaymentStatus': fake.random_element(elements=('Paid', 'Unpaid', 'Refunded')),
+        'OrderStatus': fake.random_element(elements=('Pending', 'Shipped', 'Delivered', 'Cancelled')),
+        'ShippingCost': round(fake.random.uniform(5.0, 20.0), 2),
+        'Carrier': fake.random_element(elements=('UPS', 'FedEx', 'DHL', 'USPS')),
+        'TrackingNumber': str(uuid.uuid4()),
+        'CouponCode': fake.word(),
+        'CouponDiscount': discount,
+        'City': location[2],
+        'Country': location[3],
+        'Latitude': location[0],
+        'Longitude': location[1],
+        'ShippingAddress': fake.address().replace('\n', ', '),
+        'BillingAddress': fake.address().replace('\n', ', ')
+    }
+
+file_path = 'sales_data.csv'
+
+# Write header to CSV file
+with open(file_path, 'w', newline='') as csvfile:
+    fieldnames = ['SaleID', 'OrderID', 'OrderDate', 'CustomerName', 'CustomerEmail', 'ProductID', 'ProductName', 'ProductCategory', 'UnitsSold', 'UnitPrice', 'TotalPrice', 'Revenue', 'Region', 'Discount', 'CustomerID', 'PaymentMethod', 'PaymentStatus', 'OrderStatus', 'ShippingCost', 'Carrier', 'TrackingNumber', 'CouponCode', 'CouponDiscount', 'City', 'Country', 'Latitude', 'Longitude', 'ShippingAddress', 'BillingAddress']
+    writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+    writer.writeheader()
+
+while True:
+    sales_data = generate_sales_data()
+    print(sales_data)
+    with open(file_path, 'a', newline='') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writerow(sales_data)
+    time.sleep(5)
