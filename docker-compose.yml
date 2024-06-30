@@ -27,7 +27,7 @@ services:
         condition: service_healthy
     ports:
       - "9092:9092"
-      - "9101:9101"
+      - "29092:29092"
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
@@ -50,7 +50,7 @@ services:
     networks:
       - confluent
     healthcheck:
-      test: [ "CMD", "bash", "-c", 'nc -z localhost 9092' ]
+      test: ["CMD", "bash", "-c", 'nc -z localhost 9092']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -71,7 +71,7 @@ services:
     networks:
       - confluent
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8081/" ]
+      test: ["CMD", "curl", "-f", "http://localhost:8081/"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -99,10 +99,25 @@ services:
     networks:
       - confluent
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:9021/health" ]
+      test: ["CMD", "curl", "-f", "http://localhost:9021/health"]
       interval: 30s
       timeout: 10s
       retries: 5
+
+  sales_data:
+    build: ./data_simulation
+    container_name: sales_data
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+      broker:
+        condition: service_healthy
+      schema-registry:
+        condition: service_healthy
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=broker:29092
+    networks:
+      - confluent
 
 networks:
   confluent:

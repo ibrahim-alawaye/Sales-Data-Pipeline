@@ -1,9 +1,13 @@
 import csv
 import time
 import uuid
+import json
 from faker import Faker
+from kafka import KafkaProducer
 
 fake = Faker()
+
+producer = KafkaProducer(bootstrap_servers=['broker:29092'], max_block_ms=5000)
 
 def generate_sales_data():
     location = fake.local_latlng(country_code='US', coords_only=False)
@@ -13,8 +17,8 @@ def generate_sales_data():
     discount = round(fake.random.uniform(0.0, 10.0), 2)
     total_price = round((unit_price * quantity) - discount, 2)
     return {
-        'SaleID': str(uuid.uuid4()),  # Generate a unique SaleID using UUID
-        'OrderID': str(uuid.uuid4()),  # Generate a unique OrderID using UUID
+        'SaleID': str(uuid.uuid4()),  
+        'OrderID': str(uuid.uuid4()), 
         'OrderDate': order_date.strftime('%Y-%m-%d %H:%M:%S'),
         'CustomerName': fake.name(),
         'CustomerEmail': fake.email(),
@@ -54,7 +58,8 @@ with open(file_path, 'w', newline='') as csvfile:
 
 while True:
     sales_data = generate_sales_data()
-    print(sales_data)
+    # print(sales_data)
+    producer.send('sales_data', json.dumps(sales_data).encode('utf-8'))
     with open(file_path, 'a', newline='') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writerow(sales_data)
