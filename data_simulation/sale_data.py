@@ -48,19 +48,9 @@ def generate_sales_data():
         'BillingAddress': fake.address().replace('\n', ', ')
     }
 
-file_path = 'sales_data.csv'
-
-# Write header to CSV file
-with open(file_path, 'w', newline='') as csvfile:
-    fieldnames = ['SaleID', 'OrderID', 'OrderDate', 'CustomerName', 'CustomerEmail', 'ProductID', 'ProductName', 'ProductCategory', 'UnitsSold', 'UnitPrice', 'TotalPrice', 'Revenue', 'Region', 'Discount', 'CustomerID', 'PaymentMethod', 'PaymentStatus', 'OrderStatus', 'ShippingCost', 'Carrier', 'TrackingNumber', 'CouponCode', 'CouponDiscount', 'City', 'Country', 'Latitude', 'Longitude', 'ShippingAddress', 'BillingAddress']
-    writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-    writer.writeheader()
-
 while True:
     sales_data = generate_sales_data()
     # print(sales_data)
     producer.send('sales_data', json.dumps(sales_data).encode('utf-8'))
-    with open(file_path, 'a', newline='') as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        writer.writerow(sales_data)
     time.sleep(5)
+    print(sales_data)
