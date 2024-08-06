@@ -52,5 +52,5 @@ while True:
     sales_data = generate_sales_data()
     # print(sales_data)
     producer.send('sales_data', json.dumps(sales_data).encode('utf-8'))
-    time.sleep(5)
+    time.sleep(0.5)
     print(sales_data)
